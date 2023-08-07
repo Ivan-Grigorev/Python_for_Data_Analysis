@@ -67,6 +67,36 @@ class MovieLens:
 
         return highly_rated_movies.head(20)
 
+    def data_visualisation(self):
+        # Set matplotlib display option
+        plt.rc("figure", figsize=(13, 8))
+
+        # Create the single figure with two subplots stocked vertically.
+        fig, (ax1, ax2) = plt.subplots(2, 1)
+
+        # Rearrange data for plotting
+        mvc = self.movies_rating_count()
+
+        mvc = mvc.stack()
+        mvc.name = 'rating'
+        mvc = mvc.reset_index()
+
+        # Plotting the first bar plot on the first subplot (ax1)
+        sns.barplot(y='title', x='rating', hue='gender', data=mvc, ax=ax1, palette={'F': 'pink', 'M': 'blue'})
+        ax1.set_title('Average Ratings by Gender for Movies Released between 1990 - 2000')
+
+        # Set x-axis limits, ticks, and tick labels
+        ax1.set_xlim(0, 5)
+        ax1.set_xticks(range(6))
+        ax1.set_xticklabels(range(6))
+
+        plt.suptitle('Data from MovieLens 1M', fontsize=18, fontweight='bold')
+        plt.tight_layout()
+        plt.show()
+
+    def __repr__(self):
+        return self.data.head(10)
+
 
 if __name__ == '__main__':
     try:
