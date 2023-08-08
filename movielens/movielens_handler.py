@@ -41,7 +41,7 @@ class MovieLens:
         # Merge the three DataFrames into one consolidated DataFrame
         self.data = pd.merge(pd.merge(self.ratings, self.users), self.movies)
 
-    def movies_rating_count(self):
+    def get_filtered_data(self):
         # Extract the release year from the title and add a new 'release_year' column as integer type
         self.data["release_year"] = (
             self.data["title"].str.extract(r"\((\d{4})\)").astype(int)
@@ -51,14 +51,19 @@ class MovieLens:
         self.data = self.data.loc[
             (self.data["release_year"] >= 1990) & (self.data["release_year"] <= 2000)
         ]
+        return self.data
+
+    def movies_rating_count(self):
+        # Get filtered DataFrame
+        filtered_data = self.get_filtered_data()
 
         # Get average movies rating
-        mean_rating = self.data.pivot_table(
+        mean_rating = filtered_data.pivot_table(
             "rating", index="title", columns="gender", aggfunc="mean"
         ).dropna()
 
         # Count the number of ratings for each movie
-        rating_by_title = self.data.groupby("title").size()
+        rating_by_title = filtered_data.groupby("title").size()
 
         # Select 20 movies with high ratings (at least 500 ratings)
         highly_rated_movies = mean_rating.loc[
@@ -67,11 +72,14 @@ class MovieLens:
 
         return highly_rated_movies
 
+    def ratings_difference_count(self):
+        pass
+
     def data_visualisation(self):
         # Create the single figure with two subplots stocked vertically.
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 10))
 
-        # Rearrange data for plotting
+        # Rearrange movies_rating_count() data for plotting
         mvc = self.movies_rating_count()
         mvc = mvc.stack()
         mvc.name = "rating"
@@ -97,6 +105,8 @@ class MovieLens:
         ax1.set_xticks(range(6))
         ax1.set_xticklabels(range(6))
 
+        # TODO
+
         plt.suptitle("Data from MovieLens 1M", fontsize=18, fontweight="bold")
         plt.tight_layout()
         plt.show()
@@ -113,7 +123,8 @@ if __name__ == "__main__":
             ratings_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/ratings.dat",
         )
         # print(movielens.__repr__())
-        movielens.movies_rating_count()
+        # movielens.movies_rating_count()
         movielens.data_visualisation()
+        movielens.ratings_difference_count()
     except FileNotFoundError as err:
         print(f"{err.strerror}: {err.filename}")
