@@ -60,29 +60,25 @@ class MovieLens:
         # Count the number of ratings for each movie
         rating_by_title = self.data.groupby("title").size()
 
-        # Select movies with high ratings (at least 500 ratings)
+        # Select 20 movies with high ratings (at least 500 ratings)
         highly_rated_movies = mean_rating.loc[
             rating_by_title.index[rating_by_title >= 500]
-        ]
+        ].head(20)
 
-        return highly_rated_movies.head(20)
+        return highly_rated_movies
 
     def data_visualisation(self):
-        # Set matplotlib display option
-        plt.rc("figure", figsize=(13, 8))
-
         # Create the single figure with two subplots stocked vertically.
-        fig, (ax1, ax2) = plt.subplots(2, 1)
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 10))
 
         # Rearrange data for plotting
         mvc = self.movies_rating_count()
-
         mvc = mvc.stack()
         mvc.name = "rating"
         mvc = mvc.reset_index()
 
         # Plotting the first bar plot on the first subplot (ax1)
-        sns.barplot(
+        ax1 = sns.barplot(
             y="title",
             x="rating",
             hue="gender",
@@ -90,9 +86,11 @@ class MovieLens:
             ax=ax1,
             palette={"F": "pink", "M": "blue"},
         )
-        ax1.set_title(
-            "Average Ratings by Gender for Movies Released between 1990 - 2000"
-        )
+        ax1.set_title("Average ratings by gender for movies released between 1990 - 2000")
+
+        # Add the final movie rating as plot label
+        for container in ax1.containers:
+            ax1.bar_label(container, fmt="%.2f", fontsize=6, fontweight="bold")
 
         # Set x-axis limits, ticks, and tick labels
         ax1.set_xlim(0, 5)
