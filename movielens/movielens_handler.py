@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -51,10 +50,11 @@ class MovieLens:
         self.data = self.data.loc[
             (self.data["release_year"] >= 1990) & (self.data["release_year"] <= 2000)
         ]
+
         return self.data
 
     def movies_rating_count(self):
-        # Get filtered DataFrame
+        # Invoke the get_filtered_data() function and get filtered DataFrame
         filtered_data = self.get_filtered_data()
 
         # Get average movies rating
@@ -72,42 +72,90 @@ class MovieLens:
 
         return highly_rated_movies
 
-    def ratings_difference_count(self):
-        pass
+    def average_age_count(self):
+        # Get movies titles from movies_rating_count() handled data
+        movies_titles = self.movies_rating_count().reset_index()[["title"]]
+
+        # Filter original DataFrame by movies titles
+        users_age = self.data[self.data["title"].isin(movies_titles["title"])]
+
+        # Get users average age
+        mean_age = users_age.pivot_table(
+            index="title", values="age", columns="gender", aggfunc="mean"
+        )
+
+        return mean_age
 
     def data_visualisation(self):
         # Create the single figure with two subplots stocked vertically.
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 10))
 
+        # Invoke the movies_rating_count() function and retrieve the associated data
+        movies_rating_data = self.movies_rating_count()
+
         # Rearrange movies_rating_count() data for plotting
-        mvc = self.movies_rating_count()
-        mvc = mvc.stack()
-        mvc.name = "rating"
-        mvc = mvc.reset_index()
+        movies_rating_data = movies_rating_data.stack()
+        movies_rating_data.name = "rating"
+        movies_rating_data = movies_rating_data.reset_index()
+
+        # Sort by highest rating
+        movies_rating_data = movies_rating_data.sort_values(
+            by="rating", ascending=False
+        )
 
         # Plotting the first bar plot on the first subplot (ax1)
         ax1 = sns.barplot(
             y="title",
             x="rating",
             hue="gender",
-            data=mvc,
+            data=movies_rating_data,
             ax=ax1,
             palette={"F": "pink", "M": "blue"},
         )
-        ax1.set_title("Average ratings by gender for movies released between 1990 - 2000")
+        ax1.set_title("Average ratings by gender")
 
         # Add the final movie rating as plot label
         for container in ax1.containers:
             ax1.bar_label(container, fmt="%.2f", fontsize=6, fontweight="bold")
 
-        # Set x-axis limits, ticks, and tick labels
+        # Set x-axis limits, ticks and tick labels
         ax1.set_xlim(0, 5)
         ax1.set_xticks(range(6))
         ax1.set_xticklabels(range(6))
 
-        # TODO
+        # Invoke the average_age_count() function and retrieve the associated data
+        average_age_data = self.average_age_count()
 
-        plt.suptitle("Data from MovieLens 1M", fontsize=18, fontweight="bold")
+        # Rearrange average_age_count() data for plotting
+        average_age_data = average_age_data.stack()
+        average_age_data.name = "average_age"
+        average_age_data = average_age_data.reset_index()
+
+        # Plotting the second bar plot for subplot (ax2)
+        ax2 = sns.barplot(
+            y="title",
+            x="average_age",
+            hue="gender",
+            ax=ax2,
+            data=average_age_data,
+            palette={"F": "pink", "M": "blue"},
+        )
+        ax2.set_title("Users average age by gender")
+
+        # Add average age as plot label
+        for container in ax2.containers:
+            ax2.bar_label(container, fmt="%.2f", fontsize=6, fontweight="bold")
+
+        # Set x-axis limits, ticks and tick labels
+        ax2.set_xlim(0, 35)
+        ax2.set_xticks(range(36))
+        ax2.set_xticklabels(range(36))
+
+        plt.suptitle(
+            "Data from MovieLens 1M for movies released between 1990 - 2000",
+            fontsize=18,
+            fontweight="bold",
+        )
         plt.tight_layout()
         plt.show()
 
@@ -122,9 +170,7 @@ if __name__ == "__main__":
             movies_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/movies.dat",
             ratings_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/ratings.dat",
         )
-        # print(movielens.__repr__())
-        # movielens.movies_rating_count()
         movielens.data_visualisation()
-        movielens.ratings_difference_count()
+
     except FileNotFoundError as err:
         print(f"{err.strerror}: {err.filename}")
