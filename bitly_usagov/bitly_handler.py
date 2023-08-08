@@ -1,14 +1,17 @@
-from collections import defaultdict, Counter
 import json
-
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
 
+# Set NumPy print precision to 4 decimal.
 np.set_printoptions(precision=4)
+
+# Set default figure size for matplotlib plots.
 plt.rc("figure", figsize=(13, 8))
+
+# Set maximum number of rows to display in pandas DataFrame.
 pd.set_option("display.max_rows", 100)
 
 
@@ -21,18 +24,6 @@ class BitlyUsaGov:
 
     def time_zone_count(self):
         # Count time zones in dateset.
-        # Using only standard libraries Python.
-        counts_dict = {tz: self.time_zones.count(tz) for tz in self.time_zones}
-
-        # Using collections defaultdict.
-        counts_defdict = defaultdict(int)
-        for tz in self.time_zones:
-            counts_defdict[tz] += 1
-
-        # Using collections Counter.
-        counts_pd = Counter(self.time_zones)
-
-        # Using pandas.
         df = pd.DataFrame(self.records)
 
         # Clean data.
@@ -47,9 +38,6 @@ class BitlyUsaGov:
 
         # Remove rows with an empty 'tz' column values.
         df = df[df["tz"] != ""]
-
-        # Get users web browsers info.
-        results = pd.Series([x.split()[0] for x in df.a.dropna()])
 
         # Get 'Windows' browser users.
         cframe = df[df.a.notnull()]
@@ -69,7 +57,6 @@ class BitlyUsaGov:
 
         # Get 10 largest amount using nlargest() and keep as DataFrame.
         count_subset = agg_counts.nlargest(10, "total")
-        # print(count_subset)
 
         # Rearrange data for plotting.
         count_subset = count_subset.stack()
