@@ -91,6 +91,8 @@ class BitlyUsaGov:
 
         plt.suptitle("usa.gov data from Bitly", fontsize=18, fontweight="bold")
         plt.tight_layout()
+        # Save figure to a file
+        # plt.savefig("bitly_visualisation.png", dpi=300, bbox_inches="tight")
         plt.show()
 
     def __repr__(self):
