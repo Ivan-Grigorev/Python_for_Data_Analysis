@@ -14,7 +14,7 @@ Explore and analyze baby names in the USA from 1880 to 2010. The result is a fig
 2. The number of most popular boys' names given per year.
 3. The number of most popular girls' names given per year.
 
-![Baby Names Plot](path/to/baby_names_plot.png)
+![Baby Names Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/baby_names/babynames_usa.png)
 
 ### USA.gov Data from Bitly
 
@@ -24,7 +24,7 @@ Analyze data from Bitly about users who make shorter links ending with .gov or .
 2. Highlighting the first ten time zones used by Windows users and other users.
 3. Showing the percentage of Windows users and other users in the first ten time zones.
 
-![Bitly Data Plot](path/to/bitly_data_plot.png)
+![Bitly Data Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/bitly_usagov/bitly_visualisation.png)
 
 ### MovieLens 1M Dataset
 
@@ -33,7 +33,7 @@ Analyze data from the MovieLens 1M dataset, focusing on movies released between 
 1. Average ratings by gender.
 2. Users' average age by gender.
 
-![MovieLens Plot](path/to/movielens_plot.png)
+![MovieLens Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/movielens/movielens_visualisation.png)
 
 ## Contents
 
