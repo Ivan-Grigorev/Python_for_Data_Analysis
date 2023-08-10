@@ -157,6 +157,8 @@ class MovieLens:
             fontweight="bold",
         )
         plt.tight_layout()
+        # Save figure to a file
+        # plt.savefig("movielens_visualisation.png", dpi=300, bbox_inches="tight")
         plt.show()
 
     def __repr__(self):
