@@ -53,21 +53,21 @@ class UsaFood:
         # Create table with all nutrients amount
         nutr_amount = data.pivot_table(
             values='value',
-            index='nutrient',
-            columns='fgroup',
-            aggfunc='sum',
+            index='fgroup',
+            columns='nutrient',
+            aggfunc=lambda x: np.percentile(x, 50),  # 'quantile'
             dropna=True,
             fill_value=0
         )
 
-        # Filter rows by Vitamins nutrients
-        vit_amount = nutr_amount[nutr_amount.index.str.contains('Vitamin')]
+        # Filter columns by Vitamins nutrients
+        vit_amount = nutr_amount.filter(like='Vitamin', axis=1)
 
         return vit_amount
 
     def data_visualisation(self):
         # Create a figure with two subplots arranged vertically and set the overall figure size
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 10))
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 11))
 
         # Plotting the first plot showing median values by food elements (ax1)
         nutr_data = self.get_nutrients()
@@ -80,27 +80,45 @@ class UsaFood:
 
         # Create a bar plot for median zinc values by nutrient group
         sns.barplot(x=ave_nutr_zinc.values, y=ave_nutr_zinc.index, ax=ax1)
-        ax1.set_title('Median zinc values by nutrient group')
+        ax1.set_title('Median zinc values in Food groups')
+        ax1.set_xlabel('Amount')
+        ax1.set_ylabel('Food group')
 
         # Plotting the second plot showing the vitamins amount in nutrients (ax2)
         vit_data = self.get_vitamins_amount()
 
-        # Rearrange data for plotting
-        vit_data = vit_data.stack()
-        vit_data.name = 'value'
-        vit_data = vit_data.reset_index()
-        # Convert the 'value' column to numeric
-        vit_data['value'] = pd.to_numeric(vit_data['value'])
-
-        # Create a bar plot for vitamins values in nutrients
-        sns.barplot(
-            x='value',
-            y='fgroup',
-            hue='nutrient',
-            data=vit_data,
+        # Create a heatmap
+        sns.heatmap(
+            vit_data,
+            annot=True,
+            cmap='coolwarm',
+            fmt='.1f',
+            xticklabels=[
+                'A (IU)',
+                'A (RAE)',
+                'B-12',
+                'B-12 (added)',
+                'B-6',
+                'C',
+                'D',
+                'D (D2 + D3)',
+                'D2',
+                'D3',
+                'E',
+                'E (added)',
+                'K'
+            ],
+            annot_kws={
+                'fontsize': 7,
+            },
+            linewidths=0.5,
+            # cbar=False,
             ax=ax2
         )
-        ax2.set_title('Vitamin values in nutrient group')
+
+        ax2.set_title("Median Vitamins values in Food Groups (mg per 100g)")
+        ax2.set_xlabel('Vitamins')
+        ax2.set_ylabel('Food group')
 
         plt.suptitle(
             "U.S. Department of Agriculture Food Database Analysis",
@@ -121,7 +139,7 @@ if __name__ == "__main__":
                 open("/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/usa_food/usafood_db.json")
             )
         )
-        # usafood.__repr__()
+        # print(usafood.__repr__())
         usafood.data_visualisation()
 
     except FileNotFoundError as err:
