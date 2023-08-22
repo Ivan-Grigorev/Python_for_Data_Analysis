@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -60,10 +61,26 @@ class UsaFood:
             fill_value=0
         )
 
-        # Filter columns by Vitamins nutrients
+        # Filter columns by Vitamins
         vit_amount = nutr_amount.filter(like='Vitamin', axis=1)
 
         return vit_amount
+
+    def get_heatmap_colors(self, val):
+        colors = {
+            750.0: 'red',
+            500.0: 'pink',
+            200.0: 'purple',
+            50.0: 'orange',
+            10.0: 'yellow',
+            0.001: 'blue',
+        }
+
+        # Get the color by val
+        for key, value in colors.items():
+            if val >= key:
+                return value
+        return 'lightgray'  # Get the light gray color for values above the maximum
 
     def data_visualisation(self):
         # Create a figure with two subplots arranged vertically and set the overall figure size
@@ -87,12 +104,17 @@ class UsaFood:
         # Plotting the second plot showing the vitamins amount in nutrients (ax2)
         vit_data = self.get_vitamins_amount()
 
+        # Create the custom ListedColormap
+        custom_cmap = ListedColormap([self.get_heatmap_colors(x) for x in np.linspace(0, 1000, 256)])
+
         # Create a heatmap
         sns.heatmap(
             vit_data,
             annot=True,
-            cmap='coolwarm',
-            fmt='.1f',
+            cmap=custom_cmap,
+            fmt='.2f',
+            vmin=0,
+            vmax=1000,
             xticklabels=[
                 'A (IU)',
                 'A (RAE)',
@@ -113,6 +135,9 @@ class UsaFood:
             },
             linewidths=0.5,
             # cbar=False,
+            cbar_kws={
+                'ticks': np.arange(0, 1050, 50),
+            },
             ax=ax2
         )
 
