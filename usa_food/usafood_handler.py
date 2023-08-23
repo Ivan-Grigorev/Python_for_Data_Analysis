@@ -5,14 +5,22 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from collections import Counter
 
-
-# Set pandas display output options
+# Set Pandas display output options
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", None)
 pd.set_option("display.max_colwidth", None)
+
+# Define color thresholds and corresponding Seaborn heatmap colors
+HEATMAP_COLORS = {
+    (750.0,): "red",
+    (500.0,): "purple",
+    (200.0,): "pink",
+    (50.0,): "orange",
+    (10.0,): "yellow",
+    (1.0,): "blue",
+}
 
 
 class UsaFood:
@@ -37,16 +45,16 @@ class UsaFood:
 
         # Rename columns with the same names
         info = info.rename(
-            columns={'description': 'food', 'group': 'fgroup'},
+            columns={"description": "food", "group": "fgroup"},
             copy=False
         )
         nutrients = nutrients.rename(
-            columns={'description': 'nutrient', 'group': 'nutgroup'},
+            columns={"description": "nutrient", "group": "nutgroup"},
             copy=False
         )
 
         # Merge two DataFrames
-        nutrients_data = pd.merge(nutrients, info, on='id', how='outer')
+        nutrients_data = pd.merge(nutrients, info, on="id", how="outer")
 
         return nutrients_data
 
@@ -55,34 +63,18 @@ class UsaFood:
 
         # Create table with all nutrients amount
         nutr_amount = data.pivot_table(
-            values='value',
-            index='fgroup',
-            columns='nutrient',
+            values="value",
+            index="fgroup",
+            columns="nutrient",
             aggfunc=lambda x: np.percentile(x, 50),
             dropna=True,
-            fill_value=0
+            fill_value=0,
         )
 
         # Filter columns by Vitamins
-        vit_amount = nutr_amount.filter(like='Vitamin', axis=1)
+        vit_amount = nutr_amount.filter(like="Vitamin", axis=1)
 
         return vit_amount
-
-    def get_heatmap_colors(self, val):
-        colors = {
-            (750.0,): 'red',
-            (500.0,): 'purple',
-            (200.0,): 'pink',
-            (50.0,): 'orange',
-            (10.0,): 'yellow',
-            (1.0,): 'blue',
-        }
-
-        # Get the color by key
-        for key, value in colors.items():
-            if val >= key:
-                return value
-        return 'lightgray'  # Get the light gray color for values below the minimum
 
     def data_visualisation(self):
         # Create a figure with two subplots arranged vertically and set the overall figure size
@@ -92,59 +84,63 @@ class UsaFood:
         nutr_data = self.get_nutrients()
 
         # Get grouped average nutrient values
-        ave_nutr_data = nutr_data.groupby(['nutrient', 'fgroup'])['value'].quantile(0.5)
+        ave_nutr_data = nutr_data.groupby(["nutrient", "fgroup"])["value"].quantile(0.5)
 
         # Extract Zinc values for visualisation
-        ave_nutr_zinc = ave_nutr_data['Zinc, Zn'].sort_values(ascending=False)
+        ave_nutr_zinc = ave_nutr_data["Zinc, Zn"].sort_values(ascending=False)
 
         # Create a bar plot for median zinc values by nutrient group
         sns.barplot(x=ave_nutr_zinc.values, y=ave_nutr_zinc.index, ax=ax1)
-        ax1.set_title('Median zinc values in Food groups')
-        ax1.set_xlabel('Amount')
-        ax1.set_ylabel('Food group')
+        ax1.set_title("Median zinc values in Food groups (mg per 100g)")
+        ax1.set_xlabel("")
+        ax1.set_xticklabels([])
+        ax1.set_ylabel("Food group")
+
+        # Add value as plot label
+        for container in ax1.containers:
+            ax1.bar_label(container, fmt="%.3f")
 
         # Plotting the second plot showing the vitamins amount in nutrients (ax2)
         vit_data = self.get_vitamins_amount()
 
-        # # Create the custom ListedColormap
-        custom_cmap = ListedColormap([self.get_heatmap_colors(x) for x in np.linspace(0, 1000, 1000)])
+        # Create the custom ListedColormap using the colors from HEATMAP_COLORS dictionary
+        custom_cmap = ListedColormap(
+            [next((color for key, color in HEATMAP_COLORS.items() if x >= key), "lightgray")
+                for x in np.linspace(0, 1000, 1000)]
+        )
 
         # Create a heatmap
         sns.heatmap(
             vit_data,
             annot=True,
             cmap=custom_cmap,
-            fmt='.3f',
+            fmt=".3f",
             vmin=0.0,
             vmax=1000.0,
             xticklabels=[
-                'A (IU)',
-                'A (RAE)',
-                'B-12',
-                'B-12 (added)',
-                'B-6',
-                'C',
-                'D',
-                'D (D2 + D3)',
-                'D2',
-                'D3',
-                'E',
-                'E (added)',
-                'K'
+                "A (IU)",
+                "A (RAE)",
+                "B-12",
+                "B-12 (added)",
+                "B-6",
+                "C",
+                "D",
+                "D (D2 + D3)",
+                "D2",
+                "D3",
+                "E",
+                "E (added)",
+                "K",
             ],
-            annot_kws={
-                'fontsize': 7,
-            },
+            annot_kws={"fontsize": 7},
             linewidths=0.5,
-            cbar_kws={
-                'ticks': np.arange(0, 1050, 50),
-            },
-            ax=ax2
+            cbar_kws={"ticks": np.arange(0, 1050, 50)},
+            ax=ax2,
         )
 
         ax2.set_title("Median Vitamins values in Food Groups (mg per 100g)")
-        ax2.set_xlabel('Vitamins')
-        ax2.set_ylabel('Food group')
+        ax2.set_xlabel("Vitamins")
+        ax2.set_ylabel("Food group")
 
         plt.suptitle(
             "U.S. Department of Agriculture Food Database Analysis",
