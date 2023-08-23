@@ -26,7 +26,7 @@ Analyze data from Bitly about users who make shorter links ending with .gov or .
 
 ![Bitly Data Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/bitly_usagov/bitly_visualisation.png)
 
-### MovieLens 1M Dataset
+### MovieLens 1M
 
 Analyze data from the MovieLens 1M dataset, focusing on movies released between 1990 and 2000. The result is a figure with two plots:
 
@@ -34,6 +34,14 @@ Analyze data from the MovieLens 1M dataset, focusing on movies released between 
 2. Users' average age by gender.
 
 ![MovieLens Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/movielens/movielens_visualisation.png)
+
+### U.S. Department of Agriculture Food Analysis
+
+The data visualizations were created using the U.S. Department of Agriculture Food Database, a comprehensive dataset containing nutritional information for a wide variety of food items. The result is a figure with two plots:
+1. Median zinc values in food groups.
+2. Vitamins values in food groups
+
+![Food Analysis Plot]()
 
 ## Contents
 
