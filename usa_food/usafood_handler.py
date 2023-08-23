@@ -1,9 +1,11 @@
 import json
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+from matplotlib.colors import ListedColormap
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
+from collections import Counter
 
 
 # Set pandas display output options
@@ -56,7 +58,7 @@ class UsaFood:
             values='value',
             index='fgroup',
             columns='nutrient',
-            aggfunc=lambda x: np.percentile(x, 50),  # 'quantile'
+            aggfunc=lambda x: np.percentile(x, 50),
             dropna=True,
             fill_value=0
         )
@@ -68,19 +70,19 @@ class UsaFood:
 
     def get_heatmap_colors(self, val):
         colors = {
-            750.0: 'red',
-            500.0: 'pink',
-            200.0: 'purple',
-            50.0: 'orange',
-            10.0: 'yellow',
-            0.001: 'blue',
+            (750.0,): 'red',
+            (500.0,): 'purple',
+            (200.0,): 'pink',
+            (50.0,): 'orange',
+            (10.0,): 'yellow',
+            (1.0,): 'blue',
         }
 
-        # Get the color by val
+        # Get the color by key
         for key, value in colors.items():
             if val >= key:
                 return value
-        return 'lightgray'  # Get the light gray color for values above the maximum
+        return 'lightgray'  # Get the light gray color for values below the minimum
 
     def data_visualisation(self):
         # Create a figure with two subplots arranged vertically and set the overall figure size
@@ -104,17 +106,17 @@ class UsaFood:
         # Plotting the second plot showing the vitamins amount in nutrients (ax2)
         vit_data = self.get_vitamins_amount()
 
-        # Create the custom ListedColormap
-        custom_cmap = ListedColormap([self.get_heatmap_colors(x) for x in np.linspace(0, 1000, 256)])
+        # # Create the custom ListedColormap
+        custom_cmap = ListedColormap([self.get_heatmap_colors(x) for x in np.linspace(0, 1000, 1000)])
 
         # Create a heatmap
         sns.heatmap(
             vit_data,
             annot=True,
             cmap=custom_cmap,
-            fmt='.2f',
-            vmin=0,
-            vmax=1000,
+            fmt='.3f',
+            vmin=0.0,
+            vmax=1000.0,
             xticklabels=[
                 'A (IU)',
                 'A (RAE)',
@@ -134,7 +136,6 @@ class UsaFood:
                 'fontsize': 7,
             },
             linewidths=0.5,
-            # cbar=False,
             cbar_kws={
                 'ticks': np.arange(0, 1050, 50),
             },
