@@ -147,6 +147,8 @@ class UsaFood:
             fontsize=18,
             fontweight="bold",
         )
+        # Save figure to a file
+        # plt.savefig("usafood_visualisation.png", dpi=300, bbox_inches="tight")
         plt.tight_layout()
         plt.show()
 
@@ -161,7 +163,6 @@ if __name__ == "__main__":
                 open("/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/usa_food/usafood_db.json")
             )
         )
-        # print(usafood.__repr__())
         usafood.data_visualisation()
 
     except FileNotFoundError as err:
