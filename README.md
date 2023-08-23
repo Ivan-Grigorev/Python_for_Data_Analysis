@@ -41,7 +41,7 @@ The data visualizations were created using the U.S. Department of Agriculture Fo
 1. Median zinc values in food groups.
 2. Vitamins values in food groups
 
-![Food Analysis Plot]()
+![Food Analysis Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/usa_food/usafood_visualisation.png)
 
 ## Contents
 
