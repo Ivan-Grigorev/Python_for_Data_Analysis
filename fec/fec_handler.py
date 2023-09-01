@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 import pandas as pd
 import seaborn as sns
 
@@ -8,6 +9,60 @@ pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
 pd.set_option("display.width", None)
 pd.set_option("display.max_colwidth", None)
+
+# United States of America codes
+USA_CODES = [
+    "AL",
+    "AK",
+    "AZ",
+    "AR",
+    "CA",
+    "CO",
+    "CT",
+    "DE",
+    "FL",
+    "GA",
+    "HI",
+    "ID",
+    "IL",
+    "IN",
+    "IA",
+    "KS",
+    "KY",
+    "LA",
+    "ME",
+    "MD",
+    "MA",
+    "MI",
+    "MN",
+    "MS",
+    "MO",
+    "MT",
+    "NE",
+    "NV",
+    "NH",
+    "NJ",
+    "NM",
+    "NY",
+    "NC",
+    "ND",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "TX",
+    "UT",
+    "VT",
+    "VA",
+    "WA",
+    "WV",
+    "WI",
+    "WY",
+]
 
 
 class FedElectComm:
@@ -86,62 +141,9 @@ class FedElectComm:
         return highest_donations
 
     def get_donations_by_state(self):
-        # United States of America codes
-        usa_codes = [
-            "AL",
-            "AK",
-            "AZ",
-            "AR",
-            "CA",
-            "CO",
-            "CT",
-            "DE",
-            "FL",
-            "GA",
-            "HI",
-            "ID",
-            "IL",
-            "IN",
-            "IA",
-            "KS",
-            "KY",
-            "LA",
-            "ME",
-            "MD",
-            "MA",
-            "MI",
-            "MN",
-            "MS",
-            "MO",
-            "MT",
-            "NE",
-            "NV",
-            "NH",
-            "NJ",
-            "NM",
-            "NY",
-            "NC",
-            "ND",
-            "OH",
-            "OK",
-            "OR",
-            "PA",
-            "RI",
-            "SC",
-            "SD",
-            "TN",
-            "TX",
-            "UT",
-            "VT",
-            "VA",
-            "WA",
-            "WV",
-            "WI",
-            "WY",
-        ]
         # Filter data by main candidates and states
-        self.data = self.data.loc[(self.data['contbr_st'].isin(usa_codes)) &
-                                   (self.data['cand_nm'].isin(['Obama, Barack', 'Romney, Mitt']))]
+        self.data = self.data.loc[(self.data['contbr_st'].isin(USA_CODES)) &
+                                  (self.data['cand_nm'].isin(['Obama, Barack', 'Romney, Mitt']))]
 
         # Calculate the total donations amount by state and candidate
         donations_by_st = self.data.pivot_table(
@@ -152,11 +154,10 @@ class FedElectComm:
             dropna=True,
             fill_value=0
         )
-
         return donations_by_st
 
     def data_visualization(self):
-        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 12))
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 12))
 
         # Plotting first plot showing donations values (ax1)
         donations_data_by_occ = self.get_donations_by_occupation()
@@ -194,12 +195,19 @@ class FedElectComm:
         # Divide donation to get millions numbers
         donations_data_by_st = donations_data_by_st / 1000000
 
-        sns.heatmap(
-            data=donations_data_by_st,
-            annot=True,
-            cmap=False,
-            ax=ax2
-        )
+        # Reshape the state codes into a 2D array with 5 rows and 10 columns
+        codes_2d = np.array(USA_CODES).reshape(5, 10)
+
+        # Create a heatmap-like table in ax2
+        ax2.imshow(np.zeros_like(codes_2d, dtype=np.float64), cmap='Blues', aspect='auto')
+
+        # Display state codes in cells in ax2
+        for i in range(len(codes_2d)):
+            for j in range(len(codes_2d[0])):
+                ax2.text(j, i, codes_2d[i, j], ha='center', va='center', color='black', fontsize=7)
+
+        # Remove axis labels and ticks from ax2
+        ax2.axis('off')
 
         plt.suptitle(
             "The Federal Election Commission Database",
