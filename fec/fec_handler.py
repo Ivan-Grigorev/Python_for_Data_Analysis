@@ -1,3 +1,4 @@
+import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
@@ -195,17 +196,14 @@ class FedElectComm:
         # Divide donation to get millions numbers
         donations_data_by_st = donations_data_by_st / 1000000
 
-        # Reshape the state codes into a 2D array with 5 rows and 10 columns
-        codes_2d = np.array(USA_CODES).reshape(5, 10)
+        # Load USA boundaries data
+        states_map = gpd.read_file('/Users/a1/PythonProjects/Python_for_Data_Analysis/'
+                                   'fec/geopandas_data/usa-states-census-2014.shp')
 
-        # Create a heatmap-like table in ax2
-        ax2.imshow(np.zeros_like(codes_2d, dtype=np.float64), cmap='Blues', aspect='auto')
+        # Create a Geopandas USA map as ax2
+        states_map.boundary.plot(linewidth=.5, color='Black', ax=ax2)
 
-        # Display state codes in cells in ax2
-        for i in range(len(codes_2d)):
-            for j in range(len(codes_2d[0])):
-                ax2.text(j, i, codes_2d[i, j], ha='center', va='center', color='black', fontsize=7)
-
+        ax2.set_title("USA Map: States Colored by Candidates' Top Donations")
         # Remove axis labels and ticks from ax2
         ax2.axis('off')
 
@@ -214,6 +212,8 @@ class FedElectComm:
             fontsize=18,
             fontweight="bold")
         plt.tight_layout()
+        # Save figure to file
+        # plt.savefig('fec_visualization.pdf', dpi=300, bbox_inches='tight')
         plt.show()
 
     def __repr__(self):
