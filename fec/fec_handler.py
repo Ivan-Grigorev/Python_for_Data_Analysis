@@ -142,29 +142,29 @@ class FedElectComm:
         ]
 
         # Filter data by main candidates and states
-        self.data = self.data.loc[(self.data['contbr_st'].isin(usa_codes)) &
-                                  (self.data['cand_nm'].isin(['Obama, Barack', 'Romney, Mitt']))]
+        self.data = self.data.loc[
+            (self.data["contbr_st"].isin(usa_codes)) &
+            (self.data["cand_nm"].isin(["Obama, Barack", "Romney, Mitt"]))
+        ]
 
         # Calculate the total donations amount by state and candidate
         donations_by_st = self.data.pivot_table(
-            values='contb_receipt_amt',
-            index='contbr_st',
-            columns='cand_nm',
-            aggfunc='sum',
+            values="contb_receipt_amt",
+            index="contbr_st",
+            columns="cand_nm",
+            aggfunc="sum",
             dropna=True,
-            fill_value=0
+            fill_value=0,
         )
 
         # Filter donations by state to get states where Barack Obama donations exceeded Romney Mitt
         obama_states = donations_by_st[
-            donations_by_st['Obama, Barack'] >
-            donations_by_st['Romney, Mitt']
+            donations_by_st["Obama, Barack"] > donations_by_st["Romney, Mitt"]
         ].index.tolist()  # Get only states codes as list
 
         # Filter donations by state to get states where Romney Mitt donations exceeded Barack Obama
         mitt_states = donations_by_st[
-            donations_by_st['Romney, Mitt'] >
-            donations_by_st['Obama, Barack']
+            donations_by_st["Romney, Mitt"] > donations_by_st["Obama, Barack"]
         ].index.tolist()  # Get only states codes as list
 
         return donations_by_st, obama_states, mitt_states
@@ -172,7 +172,7 @@ class FedElectComm:
     def data_visualization(self):
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 12))
 
-        # Plotting first plot showing donations values (ax1)
+        # Plotting first plot shows donations values (ax1)
         donations_data_by_occ = self.get_donations_by_occupation()
         # Divide donation amount to get millions numbers
         donations_data_by_occ = donations_data_by_occ / 1000000
@@ -196,51 +196,95 @@ class FedElectComm:
             ax1.bar_label(container, fmt="%.3f", fontsize=6, fontweight="bold")
 
         # Set ax1 title and labels options
-        ax1.set_title("Amount of donations by parties for occupation types (Millions USD)")
+        ax1.set_title("Total donations by parties for different occupation types (Millions USD)")
+
+        # Create custom legend handles with the correct colors
+        ax1.legend(
+            title="Parties",
+            labels=["Democratic", "Republican"],
+            handles=[
+                plt.Line2D([0], [0], color=sns.color_palette("deep")[i], lw=5)
+                for i in range(2)
+            ],
+        )
         ax1.set_ylabel("Occupation type")
         ax1.set_xlabel(None)
         ax1.set_xticks(range(0, 31, 5))
         ax1.set_xticklabels(range(0, 31, 5))
         ax1.set_xlim(0, 30)
 
-        # Plotting second plot showing donations per state for main candidates
+        # Plotting second plot shows donations per state for main candidates (ax2)
         donations_data_by_st, obamas_states_data, romneys_states_data = self.get_donations_by_state()
 
-        # # Divide donation to get millions numbers
-        # donations_data_by_st = donations_data_by_st / 1000000
-
         # Load USA boundaries data
-        states_map_data = gpd.read_file('/Users/a1/PythonProjects/Python_for_Data_Analysis/'
-                                        'fec/geopandas_data/usa-states-census-2014.shp')
+        states_map_data = gpd.read_file(
+            "/Users/a1/PythonProjects/Python_for_Data_Analysis/"
+            "fec/geopandas_data/usa-states-census-2014.shp"
+        )
 
         # Create a Geopandas USA map as ax2
-        states_map = states_map_data.boundary.plot(linewidth=.5, color='Black', ax=ax2)
+        states_map = states_map_data.boundary.plot(linewidth=0.5, color="Black", ax=ax2)
         # Add USA codes to map
         states_map_data.apply(
             lambda x: ax2.annotate(
                 text=x.STUSPS,
                 xy=x.geometry.centroid.coords[0],
-                ha='center',
+                ha="center",
                 fontsize=7,
-                color='white',
+                color="white",
             ),
             axis=1,
         )
 
         # Plot the USA states with exact candidate colors
-        obamas_states = states_map_data[states_map_data['STUSPS'].isin(obamas_states_data)]
-        romneys_states = states_map_data[states_map_data['STUSPS'].isin(romneys_states_data)]
-        obamas_states.plot(ax=states_map, color='#4C72B0')  # Obama's states in blue
-        romneys_states.plot(ax=states_map, color='#DE844E')  # Romney's states in orange
+        obamas_states = states_map_data[states_map_data["STUSPS"].isin(obamas_states_data)]
+        romneys_states = states_map_data[states_map_data["STUSPS"].isin(romneys_states_data)]
+        obamas_states.plot(ax=states_map, color="#4C72B0")  # Obama's states in blue
+        romneys_states.plot(ax=states_map, color="#DE844E")  # Romney's states in orange
 
-        ax2.set_title("USA Map: States Colored by Candidates' Top Donations")
+        ax2.set_title("USA Map: States colored by candidate's top donations")
         # Remove axis labels and ticks from ax2
-        ax2.axis('off')
+        ax2.axis("off")
 
-        plt.suptitle(
-            "The Federal Election Commission Database",
-            fontsize=18,
-            fontweight="bold")
+        # Plotting third plot shows donations amount by state (ax3)
+        # Divide donation to get millions numbers
+        donations_data_by_st = donations_data_by_st / 1000000
+
+        # Rearrange data for plotting
+        donations_data_by_st = donations_data_by_st.stack()
+        donations_data_by_st.name = "value"
+        donations_data_by_st = donations_data_by_st.reset_index()
+
+        # Create bar plot ax3
+        sns.barplot(
+            x="contbr_st",
+            y="value",
+            hue="cand_nm",
+            data=donations_data_by_st,
+            ax=ax3,
+        )
+
+        ax3.set_title("Candidate donations per State (Millions USD)")
+        # Create custom legend handles with the correct colors
+        ax3.legend(
+            title="Candidates",
+            labels=["Barack Obama", "Mitt Romney"],
+            handles=[
+                plt.Line2D([0], [0], color=sns.color_palette("deep")[i], lw=5)
+                for i in range(2)
+            ],
+        )
+        ax3.set_ylabel("Millions USD")
+        ax3.set_ylim(0, 30)
+        ax3.set_yticks(range(0, 31, 5))
+        ax3.set_yticklabels(range(0, 31, 5))
+        ax3.set_xlabel("USA")
+
+        # Add donation amount as plot label
+        for container in ax3.containers:
+            ax3.bar_label(container, fmt="%.3f", fontsize=6, rotation=90, fontweight="bold")
+
+        plt.suptitle("The Federal Election Commission Database", fontsize=18, fontweight="bold")
         plt.tight_layout()
         # Save figure to file
         # plt.savefig('fec_visualization.pdf', dpi=300, bbox_inches='tight')
