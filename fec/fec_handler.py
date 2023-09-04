@@ -1,7 +1,6 @@
 import geopandas as gpd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
 import pandas as pd
 import seaborn as sns
 
@@ -10,60 +9,6 @@ pd.set_option("display.max_columns", None)
 pd.set_option("display.max_rows", None)
 pd.set_option("display.width", None)
 pd.set_option("display.max_colwidth", None)
-
-# United States of America codes
-USA_CODES = [
-    "AL",
-    "AK",
-    "AZ",
-    "AR",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "ID",
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "KY",
-    "LA",
-    "ME",
-    "MD",
-    "MA",
-    "MI",
-    "MN",
-    "MS",
-    "MO",
-    "MT",
-    "NE",
-    "NV",
-    "NH",
-    "NJ",
-    "NM",
-    "NY",
-    "NC",
-    "ND",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VT",
-    "VA",
-    "WA",
-    "WV",
-    "WI",
-    "WY",
-]
 
 
 class FedElectComm:
@@ -142,8 +87,62 @@ class FedElectComm:
         return highest_donations
 
     def get_donations_by_state(self):
+        # United States of America codes
+        usa_codes = [
+            "AL",
+            "AK",
+            "AZ",
+            "AR",
+            "CA",
+            "CO",
+            "CT",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "ID",
+            "IL",
+            "IN",
+            "IA",
+            "KS",
+            "KY",
+            "LA",
+            "ME",
+            "MD",
+            "MA",
+            "MI",
+            "MN",
+            "MS",
+            "MO",
+            "MT",
+            "NE",
+            "NV",
+            "NH",
+            "NJ",
+            "NM",
+            "NY",
+            "NC",
+            "ND",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VT",
+            "VA",
+            "WA",
+            "WV",
+            "WI",
+            "WY",
+        ]
+
         # Filter data by main candidates and states
-        self.data = self.data.loc[(self.data['contbr_st'].isin(USA_CODES)) &
+        self.data = self.data.loc[(self.data['contbr_st'].isin(usa_codes)) &
                                   (self.data['cand_nm'].isin(['Obama, Barack', 'Romney, Mitt']))]
 
         # Calculate the total donations amount by state and candidate
@@ -155,10 +154,23 @@ class FedElectComm:
             dropna=True,
             fill_value=0
         )
-        return donations_by_st
+
+        # Filter donations by state to get states where Barack Obama donations exceeded Romney Mitt
+        obama_states = donations_by_st[
+            donations_by_st['Obama, Barack'] >
+            donations_by_st['Romney, Mitt']
+        ].index.tolist()  # Get only states codes as list
+
+        # Filter donations by state to get states where Romney Mitt donations exceeded Barack Obama
+        mitt_states = donations_by_st[
+            donations_by_st['Romney, Mitt'] >
+            donations_by_st['Obama, Barack']
+        ].index.tolist()  # Get only states codes as list
+
+        return donations_by_st, obama_states, mitt_states
 
     def data_visualization(self):
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 12))
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(14, 12))
 
         # Plotting first plot showing donations values (ax1)
         donations_data_by_occ = self.get_donations_by_occupation()
@@ -192,16 +204,34 @@ class FedElectComm:
         ax1.set_xlim(0, 30)
 
         # Plotting second plot showing donations per state for main candidates
-        donations_data_by_st = self.get_donations_by_state()
-        # Divide donation to get millions numbers
-        donations_data_by_st = donations_data_by_st / 1000000
+        donations_data_by_st, obamas_states_data, romneys_states_data = self.get_donations_by_state()
+
+        # # Divide donation to get millions numbers
+        # donations_data_by_st = donations_data_by_st / 1000000
 
         # Load USA boundaries data
-        states_map = gpd.read_file('/Users/a1/PythonProjects/Python_for_Data_Analysis/'
-                                   'fec/geopandas_data/usa-states-census-2014.shp')
+        states_map_data = gpd.read_file('/Users/a1/PythonProjects/Python_for_Data_Analysis/'
+                                        'fec/geopandas_data/usa-states-census-2014.shp')
 
         # Create a Geopandas USA map as ax2
-        states_map.boundary.plot(linewidth=.5, color='Black', ax=ax2)
+        states_map = states_map_data.boundary.plot(linewidth=.5, color='Black', ax=ax2)
+        # Add USA codes to map
+        states_map_data.apply(
+            lambda x: ax2.annotate(
+                text=x.STUSPS,
+                xy=x.geometry.centroid.coords[0],
+                ha='center',
+                fontsize=7,
+                color='white',
+            ),
+            axis=1,
+        )
+
+        # Plot the USA states with exact candidate colors
+        obamas_states = states_map_data[states_map_data['STUSPS'].isin(obamas_states_data)]
+        romneys_states = states_map_data[states_map_data['STUSPS'].isin(romneys_states_data)]
+        obamas_states.plot(ax=states_map, color='#4C72B0')  # Obama's states in blue
+        romneys_states.plot(ax=states_map, color='#DE844E')  # Romney's states in orange
 
         ax2.set_title("USA Map: States Colored by Candidates' Top Donations")
         # Remove axis labels and ticks from ax2
@@ -217,7 +247,7 @@ class FedElectComm:
         plt.show()
 
     def __repr__(self):
-        return self.data.info()
+        return self.data
 
 
 if __name__ == "__main__":
@@ -228,7 +258,6 @@ if __name__ == "__main__":
                 low_memory=False,
             )
         )
-        # print(fed_el_comm.__repr__())
-        print(fed_el_comm.data_visualization())
+        fed_el_comm.data_visualization()
     except FileNotFoundError as err:
         print(f"{err.strerror}: {err.filename}")
