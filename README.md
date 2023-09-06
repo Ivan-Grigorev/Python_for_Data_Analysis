@@ -35,13 +35,22 @@ Analyze data from the MovieLens 1M dataset, focusing on movies released between 
 
 ![MovieLens Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/movielens/movielens_visualisation.png)
 
-### U.S. Department of Agriculture Food Analysis
+### U.S. Department of Agriculture Food
 
 The data visualizations were created using the U.S. Department of Agriculture Food Database, a comprehensive dataset containing nutritional information for a wide variety of food items. The result is a figure with two plots:
 1. Median zinc values in food groups.
 2. Vitamins values in food groups
 
 ![Food Analysis Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/usa_food/usafood_visualisation.png)
+
+### Federal Election Commission
+
+The data visualizations were generated using data from the US Federal Election Commission's records of the Presidential Election, focusing on the competition between Barack Obama (Democratic candidate) and Mitt Romney (Republican candidate). The dataset includes information on campaign donations from individuals across various states and occupations. The result is a figure with three plots:
+1. Total donations by parties for different occupation types (Millions USD).
+2. USA Map: States colored by candidate's top donations.
+3. Candidate donations per State (Millions USD).
+
+![FEC Analysis Plot]()
 
 ## Contents
 
