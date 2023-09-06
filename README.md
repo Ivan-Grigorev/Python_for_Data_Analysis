@@ -50,7 +50,7 @@ The data visualizations were generated using data from the US Federal Election C
 2. USA Map: States colored by candidate's top donations.
 3. Candidate donations per State (Millions USD).
 
-![FEC Analysis Plot]()
+![FEC Analysis Plot](https://github.com/Ivan-Grigorev/Python_for_Data_Analysis/blob/main/fec/fec_visualization.png)
 
 ## Contents
 
