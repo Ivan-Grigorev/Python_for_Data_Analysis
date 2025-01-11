@@ -160,7 +160,7 @@ if __name__ == "__main__":
     try:
         usafood = UsaFood(
             db=json.load(
-                open("/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/usa_food/usafood_db.json")
+                open("../datasets/usa_food/usafood_db.json")
             )
         )
         usafood.data_visualisation()

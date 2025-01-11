@@ -103,7 +103,7 @@ if __name__ == "__main__":
     try:
         usagov = BitlyUsaGov(
             # Path to dataset file.
-            path="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/bitly/example.txt"
+            path="../datasets/bitly/example.txt"
         )
         usagov.time_zone_count()
         usagov.users_browser_count()

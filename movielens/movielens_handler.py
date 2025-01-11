@@ -168,9 +168,9 @@ class MovieLens:
 if __name__ == "__main__":
     try:
         movielens = MovieLens(
-            users_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/users.dat",
-            movies_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/movies.dat",
-            ratings_file="/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/movielens/ratings.dat",
+            users_file="../datasets/movielens/users.dat",
+            movies_file="../datasets/movielens/movies.dat",
+            ratings_file="../datasets/movielens/ratings.dat",
         )
         movielens.data_visualisation()
 

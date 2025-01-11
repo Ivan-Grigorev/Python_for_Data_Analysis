@@ -225,7 +225,7 @@ if __name__ == "__main__":
         # Create a list of DataFrames for each year
         pieces = [
             pd.read_csv(
-                f"/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/babynames/yob{year}.txt",
+                f"../datasets/babynames/yob{year}.txt",
                 names=["name", "sex", "birth"],  # Add columns to DataFrame
             ).assign(year=year)  # Add the 'year' column to DataFrame
             for year in range(1880, 2011, 10)  # Loop over each 10 years from 1880 to 2011

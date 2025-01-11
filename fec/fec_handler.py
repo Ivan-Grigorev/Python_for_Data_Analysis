@@ -298,7 +298,7 @@ if __name__ == "__main__":
     try:
         fed_el_comm = FedElectComm(
             dataset=pd.read_csv(
-                "/Users/a1/PythonProjects/Python_for_Data_Analysis/datasets/fec/fec_dataset.csv",
+                "../datasets/fec/fec_dataset.csv",
                 low_memory=False,
             )
         )
