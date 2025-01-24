@@ -217,10 +217,7 @@ class FedElectComm:
         donations_data_by_st, obamas_states_data, romneys_states_data = self.get_donations_by_state()
 
         # Load USA boundaries data
-        states_map_data = gpd.read_file(
-            "/Users/a1/PythonProjects/Python_for_Data_Analysis/"
-            "fec/geopandas_data/usa-states-census-2014.shp"
-        )
+        states_map_data = gpd.read_file("./geopandas_data/usa-states-census-2014.shp")
 
         # Create a Geopandas USA map as ax2
         states_map = states_map_data.boundary.plot(linewidth=0.5, color="Black", ax=ax2)
